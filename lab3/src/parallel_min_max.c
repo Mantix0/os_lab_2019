@@ -40,18 +40,18 @@ int main(int argc, char **argv) {
         switch (option_index) {
           case 0:
             seed = atoi(optarg);
-            // your code here
-            // error handling
+            if (seed <= 0) 
+              seed = -1;
             break;
           case 1:
             array_size = atoi(optarg);
-            // your code here
-            // error handling
+            if (array_size <= 0)
+              array_size = -1;
             break;
           case 2:
             pnum = atoi(optarg);
-            // your code here
-            // error handling
+            if (pnum <= 0) 
+              pnum = -1;
             break;
           case 3:
             with_files = true;
@@ -88,6 +88,23 @@ int main(int argc, char **argv) {
   GenerateArray(array, array_size, seed);
   int active_child_processes = 0;
 
+  int pipefd[2];
+  if (pipe(pipefd) == -1) 
+  {
+    printf("Pipe failed!\n");
+    free(array);
+    return 1;
+  }
+
+
+  FILE* file = fopen("parallel_sync.txt","w");
+  if (file == NULL)
+  {
+    printf("fopen error!\n");
+    free(array);
+    return 1;
+  }
+
   struct timeval start_time;
   gettimeofday(&start_time, NULL);
 
@@ -99,12 +116,17 @@ int main(int argc, char **argv) {
       if (child_pid == 0) {
         // child process
 
-        // parallel somehow
+        struct MinMax min_max = GetMinMax(array,i*array_size/pnum,(i+1)*array_size/pnum);
 
         if (with_files) {
-          // use files here
+
+          fprintf(file, "%d\n",min_max.min);
+          fprintf(file, "%d\n",min_max.max);
+
         } else {
-          // use pipe here
+
+          write(pipefd[1],&min_max,8);
+          
         }
         return 0;
       }
@@ -116,8 +138,7 @@ int main(int argc, char **argv) {
   }
 
   while (active_child_processes > 0) {
-    // your code here
-
+    wait(0);
     active_child_processes -= 1;
   }
 
@@ -130,9 +151,11 @@ int main(int argc, char **argv) {
     int max = INT_MIN;
 
     if (with_files) {
-      // read from files
+      fscanf(file,"%d",&min);
+      fscanf(file,"%d",&max);
     } else {
-      // read from pipes
+      read(pipefd[0],&min,4);
+      read(pipefd[0],&max,4);
     }
 
     if (min < min_max.min) min_max.min = min;
