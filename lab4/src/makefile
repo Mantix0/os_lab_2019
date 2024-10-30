@@ -25,4 +25,4 @@ libsum.a: sum.c
 	ar rcs libsum.a sum.o
 
 clean :
-	rm parallel_min_max.o parallel_min_max parallel_synch.txt zombie_test.o zombie_test process_memory.o process_memory parallel_sum.o parallel_sum sum.o libsum.a find_min_max.o test.txt utils.o
+	rm parallel_min_max.o parallel_min_max parallel_sync.txt zombie_test.o zombie_test process_memory.o process_memory parallel_sum.o parallel_sum sum.o libsum.a find_min_max.o test.txt utils.o
