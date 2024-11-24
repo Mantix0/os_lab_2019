@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
                                       {"array_size", required_argument, 0, 0},
                                       {"pnum", required_argument, 0, 0},
                                       {"by_files", no_argument, 0, 'f'},
-                                      {"timeout", required_argument, 0, 0},
+                                      {"timeout", optional_argument, 0, 0},
                                       {0, 0, 0, 0}};
 
     int option_index = 0;
@@ -114,9 +114,11 @@ int main(int argc, char **argv) {
     return 1;
   }
 
+  if (time > 0){
   alarm(time);
   sleep(time/2);
-
+  }
+  
   int *array = malloc(sizeof(int) * array_size);
   GenerateArray(array, array_size, seed);
   int active_child_processes = 0;
